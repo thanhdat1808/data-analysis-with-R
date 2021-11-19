@@ -16,6 +16,8 @@ server <- function(input, output){
       "Pressure millibars" = "Pressure..millibars."
     )
   })
+
+  
   output$plot1 <- renderPlot({
     hist(
       d[, char()],
@@ -25,7 +27,20 @@ server <- function(input, output){
   })
   
   output$data = renderTable({
-    d[d$Summary == input$specie, ]
+    req(input$silder_temp)
+    if(input$summary!='All' && input$precip_type!='All' ){
+      filter(d,d$Summary == input$summary & d$Precip.Type == input$precip_type & d$Temperature..C.>= as.numeric(input$silder_temp[1]) & d$Temperature..C.<= as.numeric(input$silder_temp[2]) )
+    }
+    else if(input$precip_type!='All'){
+      d[d$Precip.Type == input$precip_type & d$Temperature..C.>= as.numeric(input$silder_temp[1]) & d$Temperature..C.<= as.numeric(input$silder_temp[2]),]
+    }
+    else if(input$summary!='All'){
+      filter(d,d$Summary == input$summary & d$Temperature..C.>= as.numeric(input$silder_temp[1]) & d$Temperature..C.<= as.numeric(input$silder_temp[2]))
+    }
+    else{
+      
+      d[ d$Temperature..C.>= as.numeric(input$silder_temp[1]) & d$Temperature..C.<= as.numeric(input$silder_temp[2]),]
+    }
   })
   
   output$mysummary = renderPrint({
@@ -35,7 +50,31 @@ server <- function(input, output){
   output$myplot  = renderPlot({
     boxplot(d[, char()], main = "Boxplot")
   })
+
+  
+  output$chart = renderPlot(
+    {
+      ggplot(data,
+             mapping = aes(x = .data[[input$xcol]],y = .data[[input$ycol]])       
+      )+ geom_point() +xlab(input$xcol)+ylab(input$ycol)
+  })
+  
+  output$liner_regression = renderPlot({
+    ggplot(data,
+           mapping = aes(x = .data[[input$predictor_variable]],y = .data[[input$response_variable]])
+    )+geom_point()+geom_smooth(formula = y~x, method = "lm")
+    #ggplot(data, mapping = aes(x = input$predictor_variable,y = input$response_variable))+geom_point()+geom_smooth("lm")
+    #+abline(lm(data = data , input$response_variable ~ input$predictor_variable))
+  })
+  model_lm <- reactive({
+    req(input$response_variable)
+    req(input$predictor_variable)
+    
+  })
+  output$summary_linear_regression = renderPrint({
+    print(input$predictor_variable)
+    summary(lm(formula = input$response_variable ~ input$predictor_variable,data = data ))})
+  
 }
 
-shinyApp(ui, server)
 
