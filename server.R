@@ -74,10 +74,16 @@ server <- function(input, output){
     
   })
   output$summary_linear_regression = renderPrint({
+<<<<<<< HEAD
     print(input$predictor_variable)
     summary(lm(reformulate(input$response_variable, input$predictor_variable), data = d))
+=======
+    model <- lm(reformulate(input$response_variable, input$predictor_variable), data = data)
+    summary(model)
+>>>>>>> 0e1308660e9840cf38229b00dc61d67bf06cde8c
     })
   
 }
 
+shinyApp(ui, server)
 
