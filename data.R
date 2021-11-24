@@ -5,28 +5,17 @@ d <- read.csv("D:/C/ChuyenDe5-R/Dataset/weatherHistory.csv")
 data<-d
 str(data)
 names(d)
+d <- d[,-5]
+d <- d[,-9]
 
-colnames(data) <- c("date", "summany", "type", "temp", "atemp", "humidity", "wind", "windb", "vision", "loud", "pressure", "daily")
+colnames(d)<- c("Date","Summary", "Precip.Type","Temperature","Humidity","Wind.speed","Wind.Bearing.Degree","Visibility","Pressure","Daily.Summary")
+view(d)
 
 View(data)
+nameDiagram =c("Temperature", "Humidity", "Wind Speed", "Visibility", "Pressure millibars")
+tablename = c("Temperature", "Humidity", "Wind.speed", "Visibility", "Pressure")
+#danh sach bien phu thuoc
+response_variable_list = c("Wind.speed","Visibility","Wind.Bearing","Humidity","Temperature")
+#danh sach bien doc lap
+predictor_variable_list = c("Temperature","Humidity")
 
-tablename = c("temp", "atemp", "humidity", "wind", "vision", "pressure")
-#danh sách biến phụ thuộc
-response_variable_list = c("wind","vision","windb","humidity")
-#danh sách biến độc lập
-predictor_variable_list = c("temp","humidity")
-
-model2 = lm(data = data, temp ~wind)
-summary(lm(data = data, temp ~wind))
-#Y=a+bX+e
-#in Estimate Intercept is a and Windspeed is b, 
-#-> if Windspeed increasing 1 unit then WindBD is also increasing 1.3130 unit 
-
-#Draw Model 
-plot(data = data , wind~temp)+abline(lm(data=data,wind~temp))
-
-ggplot(data = data,
-       mapping = aes(x = gsub(),y = humidity)       
-)+ geom_point()
-View(data[data$temp,data$atemp])
-View(filter(d,d$Summary == 'Overcast' & d$Precip.Type == 'rain' & d$Temperature..C.>= 12))

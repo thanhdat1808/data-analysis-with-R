@@ -5,7 +5,8 @@ ui <- dashboardPage(
       menuItem("Diagram", tabName = "diagram"),
       menuItem("View data", tabName = "Viewdata"),
       menuItem("Chart", tabName = "Chart"),
-      menuItem("Linear Regression Model", tabName = "LinearRegressionModel")
+      menuItem("Linear Regression Model", tabName = "LinearRegressionModel"),
+      menuItem("Logistic Regression Model", tabName = "LogisticRegressionModel")
     )
   ),
   dashboardBody(
@@ -14,8 +15,8 @@ ui <- dashboardPage(
         selectInput(
           inputId = "var",
           label = "Choice variable",
-          choices = c("Temperature", "Apparent Temperature", "Humidity", "Wind Speed", "Visibility", "Pressure millibars"),
-          selected = "Temperature"
+          choices = nameDiagram,
+          selected = nameDiagram[1]
         ),
         titlePanel("Histogram"),
         fluidRow(
@@ -54,9 +55,9 @@ ui <- dashboardPage(
           box(sliderInput(
             inputId = "silder_temp",
             label = "Temperature",
-            min = min(data$temp),
-            max = max(data$temp),
-            value = c(min(data$temp),max(data$temp))
+            min = min(d$Temperature),
+            max = max(d$Temperature),
+            value = c(min(d$Temperature),max(d$Temperature))
           ))
         ),
         tableOutput("data")
@@ -98,6 +99,17 @@ ui <- dashboardPage(
             
           )
         )
+      ),
+      tabItem(tabName = "LogisticRegressionModel",
+              fluidRow(
+                box(
+                  checkboxGroupInput(
+                    inputId = "logistic",
+                    label = "Input",
+                    choices = c("A")
+                  )
+                )
+              )
       )
       )
     

@@ -8,12 +8,11 @@ server <- function(input, output){
   char = reactive({
     switch(
       input$var,
-      "Temperature" = "Temperature..C.",
-      "Apparent Temperature" = "Apparent.Temperature..C.",
+      "Temperature" = "Temperature",
       "Humidity" = "Humidity",
-      "Wind Speed" = "Wind.Speed..km.h.",
-      "Visibility" = "Visibility..km.",
-      "Pressure millibars" = "Pressure..millibars."
+      "Wind Speed" = "Wind.speed",
+      "Visibility" = "Visibility",
+      "Pressure millibars" = "Pressure"
     )
   })
 
@@ -29,17 +28,17 @@ server <- function(input, output){
   output$data = renderTable({
     req(input$silder_temp)
     if(input$summary!='All' && input$precip_type!='All' ){
-      filter(d,d$Summary == input$summary & d$Precip.Type == input$precip_type & d$Temperature..C.>= as.numeric(input$silder_temp[1]) & d$Temperature..C.<= as.numeric(input$silder_temp[2]) )
+      filter(d,d$Summary == input$summary & d$Precip.Type == input$precip_type & d$Temperature>= as.numeric(input$silder_temp[1]) & d$Temperature<= as.numeric(input$silder_temp[2]) )
     }
     else if(input$precip_type!='All'){
-      d[d$Precip.Type == input$precip_type & d$Temperature..C.>= as.numeric(input$silder_temp[1]) & d$Temperature..C.<= as.numeric(input$silder_temp[2]),]
+      d[d$Precip.Type == input$precip_type & d$Temperature>= as.numeric(input$silder_temp[1]) & d$Temperature<= as.numeric(input$silder_temp[2]),]
     }
     else if(input$summary!='All'){
-      filter(d,d$Summary == input$summary & d$Temperature..C.>= as.numeric(input$silder_temp[1]) & d$Temperature..C.<= as.numeric(input$silder_temp[2]))
+      filter(d,d$Summary == input$summary & d$Temperature>= as.numeric(input$silder_temp[1]) & d$Temperature<= as.numeric(input$silder_temp[2]))
     }
     else{
       
-      d[ d$Temperature..C.>= as.numeric(input$silder_temp[1]) & d$Temperature..C.<= as.numeric(input$silder_temp[2]),]
+      d[ d$Temperature>= as.numeric(input$silder_temp[1]) & d$Temperature<= as.numeric(input$silder_temp[2]),]
     }
   })
   
@@ -50,17 +49,20 @@ server <- function(input, output){
   output$myplot  = renderPlot({
     boxplot(d[, char()], main = "Boxplot")
   })
-
-  
-  output$chart = renderPlot(
-    {
-      ggplot(data,
-             mapping = aes(x = .data[[input$xcol]],y = .data[[input$ycol]])       
-      )+ geom_point() +xlab(input$xcol)+ylab(input$ycol)
+  plotChart <- reactive({
+    req(input$xcol)
+    req(input$ycol)
+    
+    ggplot(d,
+           mapping = aes(x = .data[[input$xcol]],y = .data[[input$ycol]])       
+    ) +xlab(input$xcol)+ylab(input$ycol)+geom_point()
+    
   })
   
+  output$chart = renderPlot(plotChart())
+  
   output$liner_regression = renderPlot({
-    ggplot(data,
+    ggplot(d,
            mapping = aes(x = .data[[input$predictor_variable]],y = .data[[input$response_variable]])
     )+geom_point()+geom_smooth(formula = y~x, method = "lm")
     #ggplot(data, mapping = aes(x = input$predictor_variable,y = input$response_variable))+geom_point()+geom_smooth("lm")
@@ -73,7 +75,8 @@ server <- function(input, output){
   })
   output$summary_linear_regression = renderPrint({
     print(input$predictor_variable)
-    summary(lm(formula = input$response_variable ~ input$predictor_variable,data = data ))})
+    summary(lm(reformulate(input$response_variable, input$predictor_variable), data = d))
+    })
   
 }
 
